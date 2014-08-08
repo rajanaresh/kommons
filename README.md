@@ -1,6 +1,6 @@
 EXAMPLE
 =======
-
+```
 Console A (server)
 $> python
 >>> from kommons import node
@@ -15,4 +15,4 @@ $> python
 [1, 2, 3, 4, 54, 6]
 >>> node.synch(w, "{'k1': "value1", 'k2': "value2"}")
 {'k1': "value1", 'k2': "value2"}
-
+```
