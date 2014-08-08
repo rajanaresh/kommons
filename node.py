@@ -94,4 +94,5 @@ def synch(cd, m):
     msg['type'] = 'synch'
     msg['msg'] = m
     cd.send(str(msg))
-    return cd.recv(8192)
+    ret = cd.recv(8192)
+    return(eval(ret))
