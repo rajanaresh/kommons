@@ -1,6 +1,6 @@
 import socket, select, thread
 
-def _poll(sd, eo, trigger):
+def _poll(sd, eo):
     connections = {}
     def serve(event):
         ld, e = event
@@ -25,10 +25,10 @@ def _poll(sd, eo, trigger):
                     # execute synch/asynch handler with the recvd message as the argument
                     msg = eval(msg)
                     if msg['type'] == 'synch':
-                        ret = trigger['synch'](msg['msg'])
+                        ret = synch_handler(msg['msg'])
                         connections[ld].send(str(ret))
                     else:
-                        trigger['asynch'](msg['msg'])
+                        asynch_handler(msg['msg'])
                     
     while(True):
         events = eo.poll(0)
@@ -56,7 +56,7 @@ def close_handler():
 
 # listens on this port for connections (server)
 # TODO: sd needs to be a singleton object, figure out how to do it in functional way
-def listen(port, trigger=None):
+def listen(port):
     sd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sd.setblocking(0)
@@ -64,14 +64,11 @@ def listen(port, trigger=None):
     # number of concurrent connections
     sd.listen(4000)
 
-    if trigger==None:
-        trigger = {}
-        trigger['synch'] = synch_handler
-        trigger['asynch'] = asynch_handler
     # launch a thread polling and accepting connections and triggering registered handlers for the respective calls.
     eo = select.epoll()
     eo.register(sd.fileno(), select.EPOLLIN)
-    thread.start_new(_poll, (sd, eo, trigger))
+    thread.start_new(_poll, (sd, eo))
+    return sd
 
 # returns a cd (client)
 def open(hp):
