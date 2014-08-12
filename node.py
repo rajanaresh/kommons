@@ -11,6 +11,7 @@ def _poll(sd, eo):
                 fd.setblocking(False)
                 eo.register(fd.fileno(), select.EPOLLIN)
                 connections[fd.fileno()] = fd
+                open_handler()
             else:
                 # recv complete message
                 # TODO: change this to infinite message size
@@ -21,6 +22,7 @@ def _poll(sd, eo):
                     eo.unregister(ld)
                     connections[ld].close()
                     del connections[ld]
+                    close_handler()
                 else:
                     # execute synch/asynch handler with the recvd message as the argument
                     msg = eval(msg)
